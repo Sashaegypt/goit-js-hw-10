@@ -14,34 +14,53 @@ export function fetchCountries(name) {
       .catch(e => console.log(e));
   }
 
-const searchbox = document.querySelector('#search-box');  
-const countryList = document.querySelector('country-list');
-const countryInfo = document.querySelector('country-info');
+const searchBox = document.querySelector('#search-box');
+const countryList = document.querySelector('.country-list');
+const countryInfo = document.querySelector('.country-info');
 
-searchbox.addEventListener('input' , debounce(onSearchbox , DEBOUNCE_DELAY));
+searchBox.addEventListener('input', debounce(onSearchBox, DEBOUNCE_DELAY));
 
-function onSearchbox () {
-    const name = searchbox.value.trim();
-    if (name === '') {
-        return (countryList.innerHTML = ''), (countryInfo.inner = '');
-    }
-
-fetchCountries(name)
-  .then(countries =>{
-    console.log('countries', countries);
-    countryList.innerHTML = '';
-    countryInfo.innerHTML = '';
-    if (countries.length === 1){
-        countryList.insertAdjacentElement('beforeend', createCountryList(countries));
-        countryInfo.insertAdjacentElement('beforeend', createCountryInfo(countries));
-    }else if(countries.length >= 10){
+function onSearchBox() {
+  const name = searchBox.value.trim();
+  if (name === '') {
+    return (countryList.innerHTML = ''), (countryInfo.innerHTML = '');
+  }
+  fetchCountries(name)
+    .then(countries => {
+      console.log('countries', countries);
+      countryList.innerHTML = '';
+      countryInfo.innerHTML = '';
+      if (countries.length === 1) {
+        countryList.insertAdjacentHTML(
+          'beforeend',
+          createCountryList(countries)
+        );
+        countryInfo.insertAdjacentHTML(
+          'beforeend',
+          createCountryInfo(countries)
+        );
+      } else if (countries.length >= 10) {
         alertTooManyMatches();
-    }else {(
-        countryList.insertAdjacentElement('beforeend', createCountryList(countries))
-    );
-    }
-  })
-  .catch(alertWrongName)
+      } else {
+        countryList.insertAdjacentHTML(
+          'beforeend',
+          createCountryList(countries)
+        );
+      }
+    })
+    .catch(alertWrongName);
+}
+
+function createCountryList(countries) {
+    const result = countries
+        .map(({ name, flags }) => {
+            return `<li>
+                <img src="${flags.svg}" alt="Flag of ${name.official}" width = 40px height = 40px>
+                <h2>${name.official}</h2>
+            </li>`;
+        })
+        .join('');
+    return result;
 }
 
 function createCountryInfo(countries) {
